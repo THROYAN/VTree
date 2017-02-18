@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
+using VTree.Forms;
+using VTree.Models;
 
 namespace VTree
 {
@@ -15,11 +18,34 @@ namespace VTree
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            // todo: create all threads here
-            // in main form we only start thread with scanning
-            // and thread with tree
-            // and thread with xml
-            Application.Run(new MainForm());
+
+            DirectoryScanner scanner = CreateScanner();
+            MainForm mainForm = new MainForm(scanner);
+            CreateTreeForm(mainForm, scanner);
+
+            Application.Run(mainForm);
+        }
+
+        static DirectoryScanner CreateScanner()
+        {
+            return new DirectoryScanner();
+        }
+
+        static void CreateTreeForm(MainForm mainForm, DirectoryScanner scanner)
+        {
+            new Thread(new ThreadStart(() => {
+                TreeForm treeForm = new TreeForm(scanner);
+                Console.WriteLine("1-" + Thread.CurrentThread.ManagedThreadId);
+                mainForm.onStart += (Events.DirectoryScanEventArgs e) =>
+                {
+                    treeForm.Show();
+                    treeForm.BeginInvoke(new Action(() =>
+                    {
+                        treeForm.initializeTree();
+                        Console.WriteLine("3-" + Thread.CurrentThread.ManagedThreadId);
+                    }));
+                };
+            })).Start();
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace VTree.Events
 {
-    class DirectoryFoundEventArgs : EventArgs
+    public class DirectoryFoundEventArgs : EventArgs
     {
         public DirectoryInfo info { get; private set; }
 

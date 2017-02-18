@@ -6,7 +6,7 @@ using System.Text;
 
 namespace VTree.Events
 {
-    class FileFoundEventArgs : EventArgs
+    public class FileFoundEventArgs : EventArgs
     {
         public FileInfo info { get; private set; }
 

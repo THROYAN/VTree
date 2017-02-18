@@ -8,7 +8,7 @@ using VTree.Events;
 
 namespace VTree.Models
 {
-    class DirectoryScanner
+    public class DirectoryScanner
     {
         public delegate void FileFoundHandler(FileFoundEventArgs e);
         public delegate void DirectoryFoundHandler(DirectoryFoundEventArgs e);
@@ -28,6 +28,15 @@ namespace VTree.Models
         /// <param name="path">path to scan</param>
         public void Scan(string path)
         {
+            this.onDirectoryFound?.Invoke(new DirectoryFoundEventArgs(
+                new DirectoryInfo(path)
+            ));
+
+            this.scan(path);
+        }
+
+        private void scan(string path)
+        {
             string[] files;
             try
             {
@@ -42,19 +51,24 @@ namespace VTree.Models
 
             foreach (string file in Directory.GetFiles(path))
             {
-                this.onFileFound?.Invoke(new FileFoundEventArgs(new FileInfo(file)));
+                this.onFileFound?.Invoke(new FileFoundEventArgs(
+                    new FileInfo(file)
+                ));
             }
-            
+
             string[] directories = Directory.GetDirectories(path);
 
+            // two cycles to show all directories first
             foreach (string dir in directories)
             {
-                this.onDirectoryFound?.Invoke(new DirectoryFoundEventArgs(new DirectoryInfo(dir)));
+                this.onDirectoryFound?.Invoke(new DirectoryFoundEventArgs(
+                    new DirectoryInfo(dir)
+                ));
             }
             // search forward
             foreach (string dir in directories)
             {
-                this.Scan(dir);
+                this.scan(dir);
             }
         }
     }
