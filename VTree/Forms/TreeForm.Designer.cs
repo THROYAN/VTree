@@ -28,16 +28,29 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TreeForm));
             this.directoryTree = new System.Windows.Forms.TreeView();
+            this.iconList = new System.Windows.Forms.ImageList(this.components);
             this.SuspendLayout();
             // 
             // directoryTree
             // 
             this.directoryTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.directoryTree.ImageIndex = 0;
+            this.directoryTree.ImageList = this.iconList;
             this.directoryTree.Location = new System.Drawing.Point(0, 0);
             this.directoryTree.Name = "directoryTree";
+            this.directoryTree.SelectedImageIndex = 0;
             this.directoryTree.Size = new System.Drawing.Size(282, 253);
             this.directoryTree.TabIndex = 0;
+            // 
+            // iconList
+            // 
+            this.iconList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("iconList.ImageStream")));
+            this.iconList.TransparentColor = System.Drawing.Color.Transparent;
+            this.iconList.Images.SetKeyName(0, "file-ico.png");
+            this.iconList.Images.SetKeyName(1, "folder-ico.png");
             // 
             // TreeForm
             // 
@@ -47,7 +60,6 @@
             this.Controls.Add(this.directoryTree);
             this.Name = "TreeForm";
             this.Text = "TreeForm";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TreeForm_FormClosing);
             this.ResumeLayout(false);
 
         }
@@ -55,5 +67,6 @@
         #endregion
 
         private System.Windows.Forms.TreeView directoryTree;
+        private System.Windows.Forms.ImageList iconList;
     }
 }

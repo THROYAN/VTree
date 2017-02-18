@@ -105,11 +105,5 @@ namespace VTree.Forms
             this.getNodeByPath(e.info.Parent.FullName)
                 .Nodes.Add(directoryNode);
         }
-
-        private void TreeForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            this.Hide();
-            e.Cancel = true; // this cancels the close event.
-        }
     }
 }
