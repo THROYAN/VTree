@@ -33,16 +33,18 @@ namespace VTree
 
         static void CreateTreeForm(MainForm mainForm, DirectoryScanner scanner)
         {
+            Console.WriteLine("Outside treeform-" + Thread.CurrentThread.ManagedThreadId);
             new Thread(new ThreadStart(() => {
                 TreeForm treeForm = new TreeForm(scanner);
-                Console.WriteLine("1-" + Thread.CurrentThread.ManagedThreadId);
+                Console.WriteLine("Treeform creation-" + Thread.CurrentThread.ManagedThreadId);
                 mainForm.onStart += (Events.DirectoryScanEventArgs e) =>
                 {
                     treeForm.Show();
+                    Console.WriteLine("mainForm onstart-" + Thread.CurrentThread.ManagedThreadId);
                     treeForm.BeginInvoke(new Action(() =>
                     {
                         treeForm.initializeTree();
-                        Console.WriteLine("3-" + Thread.CurrentThread.ManagedThreadId);
+                        Console.WriteLine("treeform invoke-" + Thread.CurrentThread.ManagedThreadId);
                     }));
                 };
             })).Start();

@@ -14,13 +14,11 @@ namespace VTree.Forms
 {
     public partial class TreeForm : Form
     {
-        delegate void DrawDirectory(DirectoryFoundEventArgs e);
-        delegate void DrawFile(FileFoundEventArgs e);
-
         public char directoryDelimiter = '\\';
 
         public TreeForm(DirectoryScanner scanner)
         {
+            Console.WriteLine("treeform construct-" + Thread.CurrentThread.ManagedThreadId);
             InitializeComponent();
             
             scanner.onDirectoryFound += this.drawDirectory;
@@ -76,8 +74,7 @@ namespace VTree.Forms
         {
             if (this.InvokeRequired)
             {
-                DrawFile callback = new DrawFile(this.drawFile);
-                this.Invoke(callback, new object[] { e });
+                this.BeginInvoke(new Action(() => this.drawFile(e)));
 
                 return;
             }
@@ -90,13 +87,13 @@ namespace VTree.Forms
         {
             if (this.InvokeRequired)
             {
-                DrawDirectory callback = new DrawDirectory(this.drawDirectory);
-                this.Invoke(callback, new object[] { e });
+                Console.WriteLine("drawdirectory requires invoke-" + Thread.CurrentThread.ManagedThreadId);
+                this.BeginInvoke(new Action(() => this.drawDirectory(e)));
 
                 return;
             }
 
-            Console.WriteLine("4-" + Thread.CurrentThread.ManagedThreadId);
+            Console.WriteLine("drawdirectory-" + Thread.CurrentThread.ManagedThreadId);
             // root
             if (this.directoryTree.Nodes.Count == 0)
             {

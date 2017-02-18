@@ -57,8 +57,6 @@ namespace VTree.Forms
             }
 
             filePathTextBox.Text = saveFileDialog1.FileName;
-
-            tryStartTree();
         }
 
         /**
@@ -99,6 +97,7 @@ namespace VTree.Forms
             
             new Thread(new ThreadStart(() =>
             {
+                Console.WriteLine("start scanning-" + Thread.CurrentThread.ManagedThreadId);
                 this.scanner.Scan(directoryTextBox.Text);
 
                 this.onFinish?.Invoke(e);
