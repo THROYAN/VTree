@@ -18,6 +18,8 @@ namespace VTree.Forms
     {
         private DirectoryScanner scanner { get; set; }
 
+        private Thread scanThread;
+
         public delegate void DirectoryScanEventHander(DirectoryScanEventArgs e);
 
         public event DirectoryScanEventHander onStart;
@@ -30,6 +32,27 @@ namespace VTree.Forms
             this.scanner = scanner;
             this.directoryTextBox.Text = directory;
             this.filePathTextBox.Text = xmlPath;
+
+            this.scanThread = new Thread((object path) =>
+            {
+                Console.WriteLine("start scanning-" + Thread.CurrentThread.ManagedThreadId);
+
+                DirectoryScanEventArgs e = new DirectoryScanEventArgs(
+                    directoryTextBox.Text,
+                    filePathTextBox.Text
+                );
+
+                this.onStart?.Invoke(e);
+
+                try
+                {
+                    this.scanner.Scan(path.ToString());
+                }
+                finally
+                {
+                    this.onFinish?.Invoke(e);
+                }
+            });
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -90,20 +113,7 @@ namespace VTree.Forms
                 return;
             }
 
-            DirectoryScanEventArgs e = new DirectoryScanEventArgs(
-                directoryTextBox.Text,
-                filePathTextBox.Text
-            );
-
-            this.onStart?.Invoke(e);
-            
-            new Thread(() =>
-            {
-                Console.WriteLine("start scanning-" + Thread.CurrentThread.ManagedThreadId);
-                this.scanner.Scan(directoryTextBox.Text);
-
-                this.onFinish?.Invoke(e);
-            }).Start();
+            this.scanThread.Start(directoryTextBox.Text);
         }
 
         private void textBox_KeyUp(object sender, KeyEventArgs e)
@@ -129,6 +139,14 @@ namespace VTree.Forms
         private void startButton_Click(object sender, EventArgs e)
         {
             this.tryStartTree();
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (this.scanThread.IsAlive)
+            {
+                this.scanThread.Abort();
+            }
         }
     }
 }
