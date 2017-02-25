@@ -23,11 +23,13 @@ namespace VTree.Forms
         public event DirectoryScanEventHander onStart;
         public event DirectoryScanEventHander onFinish;
 
-        public MainForm(DirectoryScanner scanner)
+        public MainForm(DirectoryScanner scanner, string directory, string xmlPath)
         {
             InitializeComponent();
 
             this.scanner = scanner;
+            this.directoryTextBox.Text = directory;
+            this.filePathTextBox.Text = xmlPath;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -95,13 +97,13 @@ namespace VTree.Forms
 
             this.onStart?.Invoke(e);
             
-            new Thread(new ThreadStart(() =>
+            new Thread(() =>
             {
                 Console.WriteLine("start scanning-" + Thread.CurrentThread.ManagedThreadId);
                 this.scanner.Scan(directoryTextBox.Text);
 
                 this.onFinish?.Invoke(e);
-            })).Start();
+            }).Start();
         }
 
         private void textBox_KeyUp(object sender, KeyEventArgs e)

@@ -16,13 +16,17 @@ namespace VTree.Forms
     {
         public char directoryDelimiter = '\\';
 
+        private DirectoryScanner scanner;
+
         public TreeForm(DirectoryScanner scanner)
         {
+            this.scanner = scanner;
+
             Console.WriteLine("treeform construct-" + Thread.CurrentThread.ManagedThreadId);
             InitializeComponent();
             
-            scanner.onDirectoryFound += this.drawDirectory;
-            scanner.onFileFound += this.drawFile;
+            this.scanner.onDirectoryFound += this.drawDirectory;
+            this.scanner.onFileFound += this.drawFile;
 
             this.Text = Thread.CurrentThread.ManagedThreadId.ToString();
         }
@@ -65,7 +69,7 @@ namespace VTree.Forms
             return node;
         }
 
-        public void initializeTree()
+        public void InitializeTree()
         {
             this.directoryTree.Nodes.Clear();
         }
@@ -104,6 +108,14 @@ namespace VTree.Forms
             TreeNode directoryNode = new TreeNode(e.info.Name, 1, 1);
             this.getNodeByPath(e.info.Parent.FullName)
                 .Nodes.Add(directoryNode);
+        }
+
+        private void TreeForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //this.Hide();
+            //e.Cancel = true;
+            this.scanner.onDirectoryFound -= this.drawDirectory;
+            this.scanner.onFileFound -= this.drawFile;
         }
     }
 }

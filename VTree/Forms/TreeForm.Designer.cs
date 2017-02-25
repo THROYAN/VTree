@@ -51,6 +51,7 @@
             this.iconList.TransparentColor = System.Drawing.Color.Transparent;
             this.iconList.Images.SetKeyName(0, "file-ico.png");
             this.iconList.Images.SetKeyName(1, "folder-ico.png");
+            this.iconList.Images.SetKeyName(2, "error.png");
             // 
             // TreeForm
             // 
@@ -60,6 +61,7 @@
             this.Controls.Add(this.directoryTree);
             this.Name = "TreeForm";
             this.Text = "TreeForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TreeForm_FormClosing);
             this.ResumeLayout(false);
 
         }

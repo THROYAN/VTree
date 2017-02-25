@@ -20,7 +20,8 @@ namespace VTree
             Application.SetCompatibleTextRenderingDefault(false);
 
             DirectoryScanner scanner = CreateScanner();
-            MainForm mainForm = new MainForm(scanner);
+            MainForm mainForm = CreateMainForm(scanner);
+
             CreateTreeForm(mainForm, scanner);
 
             Application.Run(mainForm);
@@ -31,23 +32,38 @@ namespace VTree
             return new DirectoryScanner();
         }
 
+        static MainForm CreateMainForm(DirectoryScanner scanner)
+        {
+
+            string directory = Properties.Settings.Default.directoryToScan,
+                xmlPath = Properties.Settings.Default.xmlPath;
+
+            MainForm mainForm = new MainForm(scanner, directory, xmlPath);
+            // save settings
+            mainForm.onStart += (Events.DirectoryScanEventArgs e) =>
+            {
+                Properties.Settings.Default.directoryToScan = e.DirectoryPath;
+                Properties.Settings.Default.xmlPath = e.XMLFilePath;
+
+                Properties.Settings.Default.Save();
+            };
+
+            return mainForm;
+        }
+
         static void CreateTreeForm(MainForm mainForm, DirectoryScanner scanner)
         {
             Console.WriteLine("Outside treeform-" + Thread.CurrentThread.ManagedThreadId);
-            new Thread(new ThreadStart(() => {
-                TreeForm treeForm = new TreeForm(scanner);
-                Console.WriteLine("Treeform creation-" + Thread.CurrentThread.ManagedThreadId);
-                mainForm.onStart += (Events.DirectoryScanEventArgs e) =>
+            mainForm.onStart += (Events.DirectoryScanEventArgs e) =>
+            {
+                Console.WriteLine("mainForm onstart-" + Thread.CurrentThread.ManagedThreadId);
+                new Thread(() =>
                 {
-                    treeForm.Show();
-                    Console.WriteLine("mainForm onstart-" + Thread.CurrentThread.ManagedThreadId);
-                    treeForm.BeginInvoke(new Action(() =>
-                    {
-                        treeForm.initializeTree();
-                        Console.WriteLine("treeform invoke-" + Thread.CurrentThread.ManagedThreadId);
-                    }));
-                };
-            })).Start();
+                    TreeForm treeForm = new TreeForm(scanner);
+                    treeForm.ShowDialog();
+                    treeForm.InitializeTree();
+                }).Start();
+            };
         }
     }
 }
