@@ -33,26 +33,8 @@ namespace VTree.Forms
             this.directoryTextBox.Text = directory;
             this.filePathTextBox.Text = xmlPath;
 
-            this.scanThread = new Thread((object path) =>
-            {
-                Console.WriteLine("start scanning-" + Thread.CurrentThread.ManagedThreadId);
-
-                DirectoryScanEventArgs e = new DirectoryScanEventArgs(
-                    directoryTextBox.Text,
-                    filePathTextBox.Text
-                );
-
-                this.onStart?.Invoke(e);
-
-                try
-                {
-                    this.scanner.Scan(path.ToString());
-                }
-                finally
-                {
-                    this.onFinish?.Invoke(e);
-                }
-            });
+            // scan thread initialization
+            this.scanThread = new Thread(this.startScanner);
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -114,6 +96,28 @@ namespace VTree.Forms
             }
 
             this.scanThread.Start(directoryTextBox.Text);
+        }
+
+        private void startScanner(object path)
+        {
+            Console.WriteLine("start scanning-" + Thread.CurrentThread.ManagedThreadId);
+
+            DirectoryScanEventArgs e = new DirectoryScanEventArgs(
+                directoryTextBox.Text,
+                filePathTextBox.Text
+            );
+
+            this.onStart?.Invoke(e);
+
+            try
+            {
+                // todo: manage errors
+                this.scanner.Scan(path.ToString());
+            }
+            finally
+            {
+                this.onFinish?.Invoke(e);
+            }
         }
 
         private void textBox_KeyUp(object sender, KeyEventArgs e)
