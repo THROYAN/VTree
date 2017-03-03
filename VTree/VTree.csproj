@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\AsyncEventSubscriber.cs" />
     <Compile Include="Events\DirectoryFoundEventArgs.cs" />
     <Compile Include="Events\FileFoundEventArgs.cs" />
     <Compile Include="Events\DirectoryScanEventArgs.cs" />
