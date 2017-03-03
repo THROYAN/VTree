@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using VTree.Events;
 
@@ -10,13 +7,9 @@ namespace VTree.Models
 {
     public class DirectoryScanner
     {
-        public delegate void FileFoundHandler(FileFoundEventArgs e);
-        public delegate void DirectoryFoundHandler(DirectoryFoundEventArgs e);
-        public delegate void ErrorHandler(ErrorEventArgs e);
-
-        public event FileFoundHandler onFileFound;
-        public event DirectoryFoundHandler onDirectoryFound;
-        public event ErrorHandler onError;
+        public event EventHandler<FileFoundEventArgs> onFileFound;
+        public event EventHandler<DirectoryFoundEventArgs> onDirectoryFound;
+        public event EventHandler<ErrorEventArgs> onError;
 
         public DirectoryScanner()
         {
@@ -28,7 +21,7 @@ namespace VTree.Models
         /// <param name="path">path to scan</param>
         public void Scan(string path)
         {
-            this.onDirectoryFound?.Invoke(new DirectoryFoundEventArgs(
+            this.onDirectoryFound?.Invoke(this, new DirectoryFoundEventArgs(
                 new DirectoryInfo(path)
             ));
 
@@ -44,14 +37,14 @@ namespace VTree.Models
             }
             catch (Exception e)
             {
-                this.onError?.Invoke(new ErrorEventArgs(e));
+                this.onError?.Invoke(this, new ErrorEventArgs(e));
 
                 return;
             }
 
             foreach (string file in Directory.GetFiles(path))
             {
-                this.onFileFound?.Invoke(new FileFoundEventArgs(
+                this.onFileFound?.Invoke(this, new FileFoundEventArgs(
                     new FileInfo(file)
                 ));
             }
@@ -61,7 +54,10 @@ namespace VTree.Models
             // two cycles to show all directories first
             foreach (string dir in directories)
             {
-                this.onDirectoryFound?.Invoke(new DirectoryFoundEventArgs(
+
+
+                // to call the event...
+                this.onDirectoryFound?.Invoke(this, new DirectoryFoundEventArgs(
                     new DirectoryInfo(dir)
                 ));
             }

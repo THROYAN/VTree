@@ -74,11 +74,11 @@ namespace VTree.Forms
             this.directoryTree.Nodes.Clear();
         }
 
-        private void drawFile(FileFoundEventArgs e)
+        private void drawFile(object sender, FileFoundEventArgs e)
         {
             if (this.InvokeRequired)
             {
-                this.BeginInvoke(new Action(() => this.drawFile(e)));
+                this.BeginInvoke(new Action(() => this.drawFile(sender, e)));
 
                 return;
             }
@@ -87,12 +87,12 @@ namespace VTree.Forms
                 .Nodes.Add(fileNode);
         }
 
-        private void drawDirectory(DirectoryFoundEventArgs e)
+        private void drawDirectory(object sender, DirectoryFoundEventArgs e)
         {
             if (this.InvokeRequired)
             {
                 Console.WriteLine("drawdirectory requires invoke-" + Thread.CurrentThread.ManagedThreadId);
-                this.BeginInvoke(new Action(() => this.drawDirectory(e)));
+                this.BeginInvoke(new Action(() => this.drawDirectory(sender, e)));
 
                 return;
             }
