@@ -18,39 +18,51 @@ namespace VTree.Events
         {
             get
             {
-                return (object sender, T e) =>
+                if (this.handler == null)
                 {
-                    lock (this.query)
+                    this.handler = (object sender, T e) =>
                     {
-                        this.query.Enqueue(e);
-                        Monitor.Pulse(this.query);
-                    }
-                };
+                        lock (this.query)
+                        {
+                            this.query.Enqueue(e);
+                            Monitor.Pulse(this.query);
+                        }
+                    };
+                }
+
+                return this.handler;
             }
         }
+        private EventHandler<T> handler;
 
         public Thread Thread
         {
             get
             {
-                return new Thread(() =>
+                if (this.thread == null)
                 {
-                    while (true)
+                    this.thread = new Thread(() =>
                     {
-                        lock (this.query)
+                        while (true)
                         {
-                            while (this.query.Count == 0)
+                            lock (this.query)
                             {
-                                Monitor.Wait(this.query);
-                            }
-                            T e = this.query.Dequeue();
+                                while (this.query.Count == 0)
+                                {
+                                    Monitor.Wait(this.query);
+                                }
+                                T e = this.query.Dequeue();
 
                             // this??
                             this.OnEvent?.Invoke(this, e);
+                            }
                         }
-                    }
-                });
+                    });
+                }
+
+                return this.thread;
             }
         }
+        private Thread thread;
     }
 }
