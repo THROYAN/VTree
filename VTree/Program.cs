@@ -53,16 +53,33 @@ namespace VTree
 
         static void CreateTreeForm(MainForm mainForm, DirectoryScanner scanner)
         {
+            TreeForm treeForm = new TreeForm(scanner);
             Console.WriteLine("Outside treeform-" + Thread.CurrentThread.ManagedThreadId);
             mainForm.onStart += (Events.DirectoryScanEventArgs e) =>
             {
                 Console.WriteLine("mainForm onstart-" + Thread.CurrentThread.ManagedThreadId);
                 new Thread(() =>
                 {
-                    TreeForm treeForm = new TreeForm(scanner);
                     treeForm.ShowDialog();
                     treeForm.InitializeTree();
                 }).Start();
+            };
+
+            // close parent form
+            // we don't want to reopen form...
+            treeForm.FormClosed += (object sender, FormClosedEventArgs e) =>
+            {
+                if (mainForm.InvokeRequired)
+                {
+                    mainForm.BeginInvoke(new Action(() =>
+                    {
+                        mainForm.Close();
+                    }));
+
+                    return;
+                }
+
+                mainForm.Close();
             };
         }
     }
