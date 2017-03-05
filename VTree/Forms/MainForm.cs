@@ -95,6 +95,12 @@ namespace VTree.Forms
                 return;
             }
 
+            if (this.scanThread.IsAlive || this.scanThread.ThreadState == ThreadState.Stopped)
+            {
+                // stop previous scan and start new one
+                this.scanThread.Abort();
+                this.scanThread = new Thread(this.startScanner);
+            }
             this.scanThread.Start(directoryTextBox.Text);
         }
 
