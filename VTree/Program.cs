@@ -23,6 +23,7 @@ namespace VTree
             MainForm mainForm = CreateMainForm(scanner);
 
             CreateTreeForm(mainForm, scanner);
+            CreateXMLWriter(mainForm, scanner);
 
             Application.Run(mainForm);
         }
@@ -53,34 +54,39 @@ namespace VTree
 
         static void CreateTreeForm(MainForm mainForm, DirectoryScanner scanner)
         {
-            TreeForm treeForm = new TreeForm(scanner);
             Console.WriteLine("Outside treeform-" + Thread.CurrentThread.ManagedThreadId);
             mainForm.onStart += (Events.DirectoryScanEventArgs e) =>
             {
-                Console.WriteLine("mainForm onstart-" + Thread.CurrentThread.ManagedThreadId);
-                new Thread(() =>
+                TreeForm treeForm = new TreeForm(scanner);
+                mainForm.BeginInvoke(new Action(() =>
                 {
-                    treeForm.ShowDialog();
+                    Console.WriteLine("mainForm onstart-" + Thread.CurrentThread.ManagedThreadId);
+                    treeForm.ShowDialog(mainForm);
                     treeForm.InitializeTree();
-                }).Start();
+                }));
+
+                //// close parent form
+                //// we don't want to reopen form...
+                //treeForm.FormClosed += (object sender, FormClosedEventArgs ev) =>
+                //{
+                //    if (mainForm.InvokeRequired)
+                //    {
+                //        mainForm.BeginInvoke(new Action(() =>
+                //        {
+                //            mainForm.Close();
+                //        }));
+
+                //        return;
+                //    }
+
+                //    mainForm.Close();
+                //};
             };
+        }
 
-            // close parent form
-            // we don't want to reopen form...
-            treeForm.FormClosed += (object sender, FormClosedEventArgs e) =>
-            {
-                if (mainForm.InvokeRequired)
-                {
-                    mainForm.BeginInvoke(new Action(() =>
-                    {
-                        mainForm.Close();
-                    }));
-
-                    return;
-                }
-
-                mainForm.Close();
-            };
+        static void CreateXMLWriter(MainForm form, DirectoryScanner scanner)
+        {
+            //DirectoryXMLWriter xmlWriter = new DirectoryXMLWriter();
         }
     }
 }
