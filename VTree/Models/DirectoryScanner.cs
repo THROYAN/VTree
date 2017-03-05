@@ -7,9 +7,7 @@ namespace VTree.Models
 {
     public class DirectoryScanner
     {
-        public event EventHandler<FileFoundEventArgs> onFileFound;
-        public event EventHandler<DirectoryFoundEventArgs> onDirectoryFound;
-        public event EventHandler<ErrorEventArgs> onError;
+        public event EventHandler<ItemFoundEventArgs> onItemFound;
 
         public DirectoryScanner()
         {
@@ -21,7 +19,7 @@ namespace VTree.Models
         /// <param name="path">path to scan</param>
         public void Scan(string path)
         {
-            this.onDirectoryFound?.Invoke(this, new DirectoryFoundEventArgs(
+            this.onItemFound?.Invoke(this, new ItemFoundEventArgs(
                 new DirectoryInfo(path)
             ));
 
@@ -37,14 +35,15 @@ namespace VTree.Models
             }
             catch (Exception e)
             {
-                this.onError?.Invoke(this, new ErrorEventArgs(e));
+                // should not be
+                //this.onItemFound?.Invoke(this, new ItemFoundEventArgs(,e));
 
                 return;
             }
 
             foreach (string file in Directory.GetFiles(path))
             {
-                this.onFileFound?.Invoke(this, new FileFoundEventArgs(
+                this.onItemFound?.Invoke(this, new ItemFoundEventArgs(
                     new FileInfo(file)
                 ));
             }
@@ -57,7 +56,7 @@ namespace VTree.Models
 
 
                 // to call the event...
-                this.onDirectoryFound?.Invoke(this, new DirectoryFoundEventArgs(
+                this.onItemFound?.Invoke(this, new ItemFoundEventArgs(
                     new DirectoryInfo(dir)
                 ));
             }

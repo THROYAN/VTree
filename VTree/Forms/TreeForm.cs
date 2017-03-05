@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -24,9 +25,18 @@ namespace VTree.Forms
 
             Console.WriteLine("treeform construct-" + Thread.CurrentThread.ManagedThreadId);
             InitializeComponent();
-            
-            this.scanner.onDirectoryFound += this.drawDirectory;
-            this.scanner.onFileFound += this.drawFile;
+
+            this.scanner.onItemFound += (object sender, ItemFoundEventArgs e) =>
+            {
+                if (e.Info is DirectoryInfo)
+                {
+                    this.drawDirectory(sender, e);
+                }
+                else
+                {
+                    this.drawFile(sender, e);
+                }
+            };
 
             this.Text = Thread.CurrentThread.ManagedThreadId.ToString();
         }
@@ -74,7 +84,7 @@ namespace VTree.Forms
             this.directoryTree.Nodes.Clear();
         }
 
-        private void drawFile(object sender, FileFoundEventArgs e)
+        private void drawFile(object sender, ItemFoundEventArgs e)
         {
             if (this.InvokeRequired)
             {
@@ -82,12 +92,13 @@ namespace VTree.Forms
 
                 return;
             }
-            TreeNode fileNode = new TreeNode(e.info.Name, 0, 0);
-            this.getNodeByPath(e.info.DirectoryName)
+            FileInfo info = e.Info as FileInfo;
+            TreeNode fileNode = new TreeNode(info.Name, 0, 0);
+            this.getNodeByPath(info.DirectoryName)
                 .Nodes.Add(fileNode);
         }
 
-        private void drawDirectory(object sender, DirectoryFoundEventArgs e)
+        private void drawDirectory(object sender, ItemFoundEventArgs e)
         {
             if (this.InvokeRequired)
             {
@@ -101,12 +112,13 @@ namespace VTree.Forms
             // root
             if (this.directoryTree.Nodes.Count == 0)
             {
-                this.directoryTree.Nodes.Add(new TreeNode(e.info.FullName, 1, 1));
+                this.directoryTree.Nodes.Add(new TreeNode(e.Info.FullName, 1, 1));
 
                 return;
             }
-            TreeNode directoryNode = new TreeNode(e.info.Name, 1, 1);
-            this.getNodeByPath(e.info.Parent.FullName)
+            DirectoryInfo info = e.Info as DirectoryInfo;
+            TreeNode directoryNode = new TreeNode(info.Name, 1, 1);
+            this.getNodeByPath(info.Parent.FullName)
                 .Nodes.Add(directoryNode);
         }
 
@@ -114,8 +126,8 @@ namespace VTree.Forms
         {
             //this.Hide();
             //e.Cancel = true;
-            this.scanner.onDirectoryFound -= this.drawDirectory;
-            this.scanner.onFileFound -= this.drawFile;
+            this.scanner.onItemFound -= this.drawDirectory;
+            this.scanner.onItemFound -= this.drawFile;
         }
     }
 }

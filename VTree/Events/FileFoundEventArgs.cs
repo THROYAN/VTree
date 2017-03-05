@@ -6,13 +6,13 @@ using System.Text;
 
 namespace VTree.Events
 {
-    public class FileFoundEventArgs : EventArgs
+    public class FileFoundEventArgs : ItemFoundEventArgs
     {
-        public FileInfo info { get; private set; }
+        public new FileInfo Info { get { return base.Info as FileInfo; } }
 
-        public FileFoundEventArgs(FileInfo info)
+        public FileFoundEventArgs(FileInfo Info, string ErrorMessage)
+            : base(Info, ErrorMessage)
         {
-            this.info = info;
         }
     }
 }
