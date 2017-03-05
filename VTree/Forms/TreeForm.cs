@@ -18,15 +18,11 @@ namespace VTree.Forms
         public char directoryDelimiter = '\\';
 
         private DirectoryScanner scanner;
+        private AsyncEventSubscriber<ItemFoundEventArgs> subscriber = new AsyncEventSubscriber<ItemFoundEventArgs>();
 
         public TreeForm(DirectoryScanner scanner)
         {
-            this.scanner = scanner;
-
-            Console.WriteLine("treeform construct-" + Thread.CurrentThread.ManagedThreadId);
-            InitializeComponent();
-
-            this.scanner.onItemFound += (object sender, ItemFoundEventArgs e) =>
+            this.subscriber.OnEvent += (object sender, ItemFoundEventArgs e) =>
             {
                 if (e.Info is DirectoryInfo)
                 {
@@ -36,6 +32,17 @@ namespace VTree.Forms
                 {
                     this.drawFile(sender, e);
                 }
+            };
+
+            this.scanner = scanner;
+            this.scanner.onItemFound += this.subscriber.Handler;
+
+            Console.WriteLine("treeform construct-" + Thread.CurrentThread.ManagedThreadId);
+            InitializeComponent();
+
+            this.FormClosed += (object sender, FormClosedEventArgs e) =>
+            {
+                subscriber.Thread.Abort();
             };
 
             this.Text = Thread.CurrentThread.ManagedThreadId.ToString();
@@ -124,10 +131,13 @@ namespace VTree.Forms
 
         private void TreeForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            //this.Hide();
-            //e.Cancel = true;
-            this.scanner.onItemFound -= this.drawDirectory;
-            this.scanner.onItemFound -= this.drawFile;
+            this.scanner.onItemFound -= this.subscriber.Handler;
+            this.subscriber.Thread.Abort();
+        }
+
+        private void TreeForm_Load(object sender, EventArgs e)
+        {
+            this.subscriber.Thread.Start();
         }
     }
 }

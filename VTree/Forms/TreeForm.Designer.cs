@@ -40,9 +40,10 @@
             this.directoryTree.ImageIndex = 0;
             this.directoryTree.ImageList = this.iconList;
             this.directoryTree.Location = new System.Drawing.Point(0, 0);
+            this.directoryTree.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.directoryTree.Name = "directoryTree";
             this.directoryTree.SelectedImageIndex = 0;
-            this.directoryTree.Size = new System.Drawing.Size(282, 253);
+            this.directoryTree.Size = new System.Drawing.Size(212, 206);
             this.directoryTree.TabIndex = 0;
             // 
             // iconList
@@ -55,13 +56,15 @@
             // 
             // TreeForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(282, 253);
+            this.ClientSize = new System.Drawing.Size(212, 206);
             this.Controls.Add(this.directoryTree);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "TreeForm";
             this.Text = "TreeForm";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TreeForm_FormClosing);
+            this.Load += new System.EventHandler(this.TreeForm_Load);
             this.ResumeLayout(false);
 
         }
