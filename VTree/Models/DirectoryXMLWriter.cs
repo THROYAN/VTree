@@ -8,7 +8,7 @@ using System.Xml;
 
 namespace VTree.Models
 {
-    class DirectoryXMLWriter
+    public class DirectoryXMLWriter
     {
         public XmlWriter writer;
 
@@ -17,15 +17,18 @@ namespace VTree.Models
             this.writer = writer;
         }
 
-        public void Start(DirectoryInfo info)
+        public void Start()
         {
+            this.writer.WriteStartDocument();
             this.writer.WriteStartElement("ScanResults");
-            this.WriteDirectory(info);
         }
 
         public void End()
         {
             this.writer.WriteEndElement();
+            this.writer.WriteEndDocument();
+
+            this.writer.Close();
         }
 
         public void WriteDirectory(DirectoryInfo info)
@@ -39,13 +42,9 @@ namespace VTree.Models
             );
        
             // name
-            this.writer.WriteStartElement("name");
-            this.writer.WriteString(info.FullName);
-            this.writer.WriteEndElement();
+            this.writer.WriteElementString("name", info.FullName);
             // created
-            this.writer.WriteStartElement("createdAt");
-            this.writer.WriteString(info.CreationTime.ToString());
-            this.writer.WriteEndElement();
+            this.writer.WriteElementString("createdAt", info.CreationTime.ToString());
 
             this.writer.WriteEndElement();
         }
@@ -55,13 +54,9 @@ namespace VTree.Models
             this.writer.WriteStartElement("file");
 
             // name
-            this.writer.WriteStartElement("name");
-            this.writer.WriteString(info.FullName);
-            this.writer.WriteEndElement();
+            this.writer.WriteElementString("name", info.FullName);
             // created
-            this.writer.WriteStartElement("createdAt");
-            this.writer.WriteString(info.CreationTime.ToString());
-            this.writer.WriteEndElement();
+            this.writer.WriteElementString("createdAt", info.CreationTime.ToString());
 
             this.writer.WriteEndElement();
         }
