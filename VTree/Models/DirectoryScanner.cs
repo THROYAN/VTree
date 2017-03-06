@@ -33,7 +33,7 @@ namespace VTree.Models
             {
                 files = Directory.GetFiles(path);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // should not be
                 //this.onItemFound?.Invoke(this, new ItemFoundEventArgs(,e));
