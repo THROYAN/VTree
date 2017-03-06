@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Xml;
@@ -11,19 +12,34 @@ namespace VTree.Models
 {
     public class DirectoryXMLWriter
     {
-        public XmlWriter writer;
+        /// <summary>
+        /// All posible permissions
+        /// </summary>
+        private Array allPermissions = Enum.GetValues(typeof(FileSystemRights));
+        
+        private XmlWriter writer;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer">XML writer with opened file</param>
         public DirectoryXMLWriter(XmlWriter writer)
         {
             this.writer = writer;
         }
 
+        /// <summary>
+        /// Use to start writing
+        /// </summary>
         public void Start()
         {
             this.writer.WriteStartDocument();
             this.writer.WriteStartElement("ScanResults");
         }
 
+        /// <summary>
+        /// Use for finalize writing
+        /// </summary>
         public void End()
         {
             this.writer.WriteEndElement();
@@ -104,7 +120,8 @@ namespace VTree.Models
             {
                 return
                     File.GetAccessControl(path)
-                        .GetOwner(typeof(System.Security.Principal.NTAccount))
+                        // NTAccount for UF name
+                        .GetOwner(typeof(NTAccount))
                         .ToString();
             }
             catch
@@ -116,21 +133,30 @@ namespace VTree.Models
 
         private string getPermissions(string path)
         {
-            var allPermissions = Enum.GetValues(typeof(FileSystemRights));
             Dictionary<FileSystemRights, bool> permissions = new Dictionary<FileSystemRights, bool>();
 
-            foreach (FileSystemRights permission in allPermissions)
+            // start with all rules denied
+            foreach (FileSystemRights permission in this.allPermissions)
             {
                 permissions[permission] = false;
             }
 
             try
             {
-                var rules = File.GetAccessControl(path).GetAccessRules(true, true, typeof(System.Security.Principal.NTAccount));
+                // get all security rules (with identities)
+                var rules = File.GetAccessControl(path).GetAccessRules(true, true, typeof(SecurityIdentifier));
+                WindowsIdentity currentUser = WindowsIdentity.GetCurrent();
 
                 foreach (FileSystemAccessRule fsRule in rules)
                 {
-                    foreach (FileSystemRights permission in allPermissions)
+                    // check if current user fits the rule
+                    if (! (currentUser.User == fsRule.IdentityReference || currentUser.Groups.Contains(fsRule.IdentityReference)))
+                    {
+                        continue;
+                    }
+
+                    // check all containing rules (later deny will replace previous allows!)
+                    foreach (FileSystemRights permission in this.allPermissions)
                     {
                         if (fsRule.FileSystemRights.HasFlag(permission))
                         {
