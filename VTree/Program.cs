@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using System.Xml;
+using VTree.Events;
 using VTree.Forms;
 using VTree.Models;
 
@@ -64,29 +67,51 @@ namespace VTree
                     treeForm.ShowDialog(mainForm);
                     treeForm.InitializeTree();
                 }));
-
-                //// close parent form
-                //// we don't want to reopen form...
-                //treeForm.FormClosed += (object sender, FormClosedEventArgs ev) =>
-                //{
-                //    if (mainForm.InvokeRequired)
-                //    {
-                //        mainForm.BeginInvoke(new Action(() =>
-                //        {
-                //            mainForm.Close();
-                //        }));
-
-                //        return;
-                //    }
-
-                //    mainForm.Close();
-                //};
             };
         }
 
-        static void CreateXMLWriter(MainForm form, DirectoryScanner scanner)
+        static void CreateXMLWriter(MainForm mainForm, DirectoryScanner scanner)
         {
-            //DirectoryXMLWriter xmlWriter = new DirectoryXMLWriter();
+            DirectoryXMLWriter directoryWriter = null;
+            AsyncEventSubscriber<ItemFoundEventArgs> subscriber = null;
+            // todo: move it to separate class
+            mainForm.onStart += (DirectoryScanEventArgs e) =>
+            {
+                XmlWriter xmlWriter = XmlWriter.Create(e.XMLFilePath);
+                directoryWriter = new DirectoryXMLWriter(xmlWriter);
+                // write first lines
+                directoryWriter.Start();
+
+                subscriber = new AsyncEventSubscriber<ItemFoundEventArgs>();
+                scanner.onItemFound += subscriber.Handler;
+                subscriber.OnEvent += (object sender, ItemFoundEventArgs ev) =>
+                {
+                    lock (directoryWriter)
+                    {
+                        if (ev.Info is DirectoryInfo)
+                        {
+                            directoryWriter.WriteDirectory(ev.Info as DirectoryInfo);
+                        }
+                        else if (ev.Info is FileInfo)
+                        {
+                            directoryWriter.WriteFile(ev.Info as FileInfo);
+                        }
+                    }
+                };
+
+                subscriber.Thread.Start();
+            };
+
+            mainForm.onFinish += (DirectoryScanEventArgs e) =>
+            {
+                // to be sure close file after writing
+                // are we sure?
+                lock (directoryWriter)
+                {
+                    directoryWriter.End();
+                    subscriber.Thread.Abort();
+                }
+            };
         }
     }
 }
