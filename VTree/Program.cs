@@ -63,9 +63,10 @@ namespace VTree
                 TreeForm treeForm = new TreeForm(scanner);
                 mainForm.BeginInvoke(new Action(() =>
                 {
+                    // todo: move form to another thread
                     Console.WriteLine("mainForm onstart-" + Thread.CurrentThread.ManagedThreadId);
-                    treeForm.ShowDialog(mainForm);
                     treeForm.InitializeTree();
+                    treeForm.ShowDialog(mainForm);
                 }));
             };
         }
@@ -77,6 +78,7 @@ namespace VTree
             // todo: move it to separate class
             mainForm.onStart += (DirectoryScanEventArgs e) =>
             {
+                // todo: check second start
                 XmlWriter xmlWriter = XmlWriter.Create(e.XMLFilePath);
                 directoryWriter = new DirectoryXMLWriter(xmlWriter);
                 // write first lines
@@ -90,11 +92,15 @@ namespace VTree
                     {
                         if (ev.Info is DirectoryInfo)
                         {
+                            directoryWriter.StartDirectory();
                             directoryWriter.WriteDirectory(ev.Info as DirectoryInfo);
+                            directoryWriter.EndDirectory();
                         }
                         else if (ev.Info is FileInfo)
                         {
+                            directoryWriter.StartFile();
                             directoryWriter.WriteFile(ev.Info as FileInfo);
+                            directoryWriter.EndFile();
                         }
                     }
                 };
@@ -108,8 +114,8 @@ namespace VTree
                 // are we sure?
                 lock (directoryWriter)
                 {
-                    directoryWriter.End();
                     subscriber.Thread.Abort();
+                    directoryWriter.End();
                 }
             };
         }

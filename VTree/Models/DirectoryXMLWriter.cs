@@ -48,10 +48,28 @@ namespace VTree.Models
             this.writer.Close();
         }
 
-        public void WriteDirectory(DirectoryInfo info)
+        public void StartDirectory()
         {
             this.writer.WriteStartElement("directory");
+        }
 
+        public void EndDirectory()
+        {
+            this.writer.WriteEndElement();
+        }
+
+        public void StartFile()
+        {
+            this.writer.WriteStartElement("file");
+        }
+
+        public void EndFile()
+        {
+            this.writer.WriteEndElement();
+        }
+
+        public void WriteDirectory(DirectoryInfo info)
+        {
             // thread id (debug)
             this.writer.WriteAttributeString(
                 "threadId",
@@ -80,14 +98,10 @@ namespace VTree.Models
                 "permissions",
                 getPermissions(info.FullName)
             );
-
-            this.writer.WriteEndElement();
         }
 
         public void WriteFile(FileInfo info)
         {
-            this.writer.WriteStartElement("file");
-
             // name
             this.writer.WriteElementString("name", info.FullName);
             // created
@@ -110,8 +124,6 @@ namespace VTree.Models
                 "permissions",
                 getPermissions(info.FullName)
             );
-
-            this.writer.WriteEndElement();
         }
 
         private string getOwner(string path)
