@@ -47,6 +47,7 @@
     <Compile Include="Events\AsyncEventSubscriber.cs" />
     <Compile Include="Events\DirectoryFoundEventArgs.cs" />
     <Compile Include="Events\FileFoundEventArgs.cs" />
+    <Compile Include="Events\ItemFoundEventArgs.cs" />
     <Compile Include="Events\DirectoryScanEventArgs.cs" />
     <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
@@ -60,6 +61,8 @@
     <Compile Include="Forms\TreeForm.Designer.cs">
       <DependentUpon>TreeForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\DirectoryModel.cs" />
+    <Compile Include="Models\DirectoryTree.cs" />
     <Compile Include="Models\DirectoryXMLWriter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

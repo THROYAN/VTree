@@ -27,6 +27,7 @@ namespace VTree
 
             CreateTreeForm(mainForm, scanner);
             CreateXMLWriter(mainForm, scanner);
+            CreateTreeXMLWriter(mainForm, scanner);
 
             Application.Run(mainForm);
         }
@@ -116,6 +117,75 @@ namespace VTree
                 {
                     subscriber.Thread.Abort();
                     directoryWriter.End();
+                }
+            };
+        }
+
+        static void CreateTreeXMLWriter(MainForm mainForm, DirectoryScanner scanner)
+        {
+            DirectoryTree tree = new DirectoryTree();
+            AsyncEventSubscriber<ItemFoundEventArgs> subscriber = null;
+            // todo: move it to separate class
+            mainForm.onStart += (DirectoryScanEventArgs e) =>
+            {
+                // todo: check second start
+
+
+                subscriber = new AsyncEventSubscriber<ItemFoundEventArgs>();
+                scanner.onItemFound += subscriber.Handler;
+                subscriber.OnEvent += (object sender, ItemFoundEventArgs ev) =>
+                {
+                    lock (tree)
+                    {
+                        if (ev.Info is DirectoryInfo)
+                        {
+                            tree.AddDirectory(ev.Info as DirectoryInfo);
+                        }
+                        else if (ev.Info is FileInfo)
+                        {
+                            tree.AddFile(ev.Info as FileInfo);
+                        }
+                    }
+                };
+
+                subscriber.Thread.Start();
+            };
+
+            mainForm.onFinish += (DirectoryScanEventArgs e) =>
+            {
+                lock (tree)
+                {
+                    subscriber.Thread.Abort();
+                    // write XML in brand new thread
+                    new Thread(() =>
+                    {
+                        XmlWriter xmlWriter = XmlWriter.Create(e.XMLFilePath + "-deep.xml");
+                        DirectoryXMLWriter directoryWriter = new DirectoryXMLWriter(xmlWriter);
+
+                        Action<DirectoryModel> writeDirFunc = null;
+                        writeDirFunc = (DirectoryModel directory) =>
+                        {
+                            directoryWriter.StartDirectory();
+                            directoryWriter.WriteDirectory(directory.Info);
+                            // am I lazy?
+                            xmlWriter.WriteElementString("size", directory.Size + " bytes");
+                            xmlWriter.WriteStartElement("directories");
+                            directory.Directories.ForEach(writeDirFunc);
+                            xmlWriter.WriteEndElement();
+                            xmlWriter.WriteStartElement("files");
+                            directory.Files.ForEach((FileInfo file) =>
+                            {
+                                directoryWriter.StartFile();
+                                directoryWriter.WriteFile(file);
+                                directoryWriter.EndFile();
+                            });
+                            xmlWriter.WriteEndElement();
+                        };
+
+                        directoryWriter.Start();
+                        writeDirFunc(tree.GetRoot());
+                        directoryWriter.End();
+                    }).Start();
                 }
             };
         }
