@@ -109,12 +109,19 @@ namespace VTree.Forms
                 return;
             }
 
+            // disable second start!
+            this.startButton.Enabled = false;
+
             if (this.scanThread.IsAlive || this.scanThread.ThreadState == ThreadState.Stopped)
             {
                 // stop previous scan and start new one
                 this.scanThread.Abort();
                 this.scanThread = new Thread(this.startScanner);
             }
+
+            // clear tree first
+            this.directoryTree.Nodes.Clear();
+
             this.scanThread.Start(directoryTextBox.Text);
         }
 
@@ -137,6 +144,12 @@ namespace VTree.Forms
             finally
             {
                 this.onFinish?.Invoke(e);
+
+                // enable start button again
+                this.BeginInvoke(new Action(() =>
+                {
+                    this.startButton.Enabled = true;
+                }));
             }
         }
 
