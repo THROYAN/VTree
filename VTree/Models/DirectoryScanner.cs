@@ -41,12 +41,7 @@ namespace VTree.Models
                 return;
             }
 
-            foreach (string file in Directory.GetFiles(path))
-            {
-                this.onItemFound?.Invoke(this, new ItemFoundEventArgs(
-                    new FileInfo(file)
-                ));
-            }
+
 
             string[] directories = Directory.GetDirectories(path);
 
@@ -60,6 +55,14 @@ namespace VTree.Models
                     new DirectoryInfo(dir)
                 ));
             }
+
+            foreach (string file in Directory.GetFiles(path))
+            {
+                this.onItemFound?.Invoke(this, new ItemFoundEventArgs(
+                    new FileInfo(file)
+                ));
+            }
+
             // search forward
             foreach (string dir in directories)
             {
