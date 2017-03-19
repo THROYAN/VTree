@@ -168,6 +168,8 @@ namespace VTree
                             directoryWriter.StartDirectory();
                             directoryWriter.WriteDirectory(directory.Info);
                             // am I lazy?
+                            // I cannot understand the domain
+                            // I cannot really come up with some place I can move this shit to
                             xmlWriter.WriteElementString("size", directory.Size + " bytes");
                             xmlWriter.WriteStartElement("directories");
                             directory.Directories.ForEach(writeDirFunc);

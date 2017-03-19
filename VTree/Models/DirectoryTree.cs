@@ -6,6 +6,9 @@ using System.Text;
 
 namespace VTree.Models
 {
+    /// <summary>
+    /// Class helper to collect a deep collection of directories
+    /// </summary>
     public class DirectoryTree
     {
         private Dictionary<string, DirectoryModel> directoryList;
