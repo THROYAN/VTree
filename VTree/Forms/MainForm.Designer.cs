@@ -41,6 +41,12 @@
             this.startButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
             this.statusLabel = new System.Windows.Forms.Label();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.directoryTree = new System.Windows.Forms.TreeView();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
             // saveFileDialog1
@@ -62,18 +68,20 @@
             // 
             this.directoryTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.directoryTextBox.Location = new System.Drawing.Point(12, 29);
+            this.directoryTextBox.Location = new System.Drawing.Point(11, 27);
+            this.directoryTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.directoryTextBox.Name = "directoryTextBox";
-            this.directoryTextBox.Size = new System.Drawing.Size(375, 22);
+            this.directoryTextBox.Size = new System.Drawing.Size(282, 20);
             this.directoryTextBox.TabIndex = 4;
             this.directoryTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
             this.directoryTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textBox_KeyUp);
             // 
             // selectFilePathButton
             // 
-            this.selectFilePathButton.Location = new System.Drawing.Point(393, 57);
+            this.selectFilePathButton.Location = new System.Drawing.Point(297, 49);
+            this.selectFilePathButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.selectFilePathButton.Name = "selectFilePathButton";
-            this.selectFilePathButton.Size = new System.Drawing.Size(168, 23);
+            this.selectFilePathButton.Size = new System.Drawing.Size(126, 19);
             this.selectFilePathButton.TabIndex = 2;
             this.selectFilePathButton.Text = "Select XML file path";
             this.selectFilePathButton.UseVisualStyleBackColor = true;
@@ -83,18 +91,20 @@
             // 
             this.filePathTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.filePathTextBox.Location = new System.Drawing.Point(12, 57);
+            this.filePathTextBox.Location = new System.Drawing.Point(11, 49);
+            this.filePathTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.filePathTextBox.Name = "filePathTextBox";
-            this.filePathTextBox.Size = new System.Drawing.Size(375, 22);
+            this.filePathTextBox.Size = new System.Drawing.Size(282, 20);
             this.filePathTextBox.TabIndex = 5;
             this.filePathTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
             this.filePathTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textBox_KeyUp);
             // 
             // selectDirectoryButton
             // 
-            this.selectDirectoryButton.Location = new System.Drawing.Point(393, 28);
+            this.selectDirectoryButton.Location = new System.Drawing.Point(297, 26);
+            this.selectDirectoryButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.selectDirectoryButton.Name = "selectDirectoryButton";
-            this.selectDirectoryButton.Size = new System.Drawing.Size(168, 23);
+            this.selectDirectoryButton.Size = new System.Drawing.Size(126, 19);
             this.selectDirectoryButton.TabIndex = 3;
             this.selectDirectoryButton.Text = "Select folder";
             this.selectDirectoryButton.UseVisualStyleBackColor = true;
@@ -102,9 +112,10 @@
             // 
             // startButton
             // 
-            this.startButton.Location = new System.Drawing.Point(125, 85);
+            this.startButton.Location = new System.Drawing.Point(96, 72);
+            this.startButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.startButton.Name = "startButton";
-            this.startButton.Size = new System.Drawing.Size(75, 23);
+            this.startButton.Size = new System.Drawing.Size(56, 19);
             this.startButton.TabIndex = 6;
             this.startButton.Text = "Start";
             this.startButton.UseVisualStyleBackColor = true;
@@ -112,9 +123,10 @@
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(379, 85);
+            this.cancelButton.Location = new System.Drawing.Point(286, 72);
+            this.cancelButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.cancelButton.Name = "cancelButton";
-            this.cancelButton.Size = new System.Drawing.Size(75, 23);
+            this.cancelButton.Size = new System.Drawing.Size(56, 19);
             this.cancelButton.TabIndex = 6;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
@@ -123,30 +135,63 @@
             // statusLabel
             // 
             this.statusLabel.AutoSize = true;
-            this.statusLabel.Location = new System.Drawing.Point(12, 9);
+            this.statusLabel.Location = new System.Drawing.Point(11, 10);
+            this.statusLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.statusLabel.Name = "statusLabel";
-            this.statusLabel.Size = new System.Drawing.Size(317, 17);
+            this.statusLabel.Size = new System.Drawing.Size(239, 13);
             this.statusLabel.TabIndex = 7;
             this.statusLabel.Text = "Please select folder to scan and XML file location";
             // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.directoryTree);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.directoryTextBox);
+            this.splitContainer1.Panel2.Controls.Add(this.statusLabel);
+            this.splitContainer1.Panel2.Controls.Add(this.selectDirectoryButton);
+            this.splitContainer1.Panel2.Controls.Add(this.cancelButton);
+            this.splitContainer1.Panel2.Controls.Add(this.filePathTextBox);
+            this.splitContainer1.Panel2.Controls.Add(this.startButton);
+            this.splitContainer1.Panel2.Controls.Add(this.selectFilePathButton);
+            this.splitContainer1.Size = new System.Drawing.Size(430, 398);
+            this.splitContainer1.SplitterDistance = 288;
+            this.splitContainer1.TabIndex = 8;
+            // 
+            // directoryTree
+            // 
+            this.directoryTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.directoryTree.Location = new System.Drawing.Point(0, 0);
+            this.directoryTree.Name = "directoryTree";
+            this.directoryTree.Size = new System.Drawing.Size(430, 288);
+            this.directoryTree.TabIndex = 0;
+            // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(573, 117);
-            this.Controls.Add(this.statusLabel);
-            this.Controls.Add(this.cancelButton);
-            this.Controls.Add(this.startButton);
-            this.Controls.Add(this.directoryTextBox);
-            this.Controls.Add(this.selectFilePathButton);
-            this.Controls.Add(this.filePathTextBox);
-            this.Controls.Add(this.selectDirectoryButton);
+            this.ClientSize = new System.Drawing.Size(430, 398);
+            this.Controls.Add(this.splitContainer1);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "MainForm";
             this.Text = "Visual Tree";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            this.splitContainer1.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -163,6 +208,8 @@
         private System.Windows.Forms.Button startButton;
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.Label statusLabel;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.TreeView directoryTree;
     }
 }
 

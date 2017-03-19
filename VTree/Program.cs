@@ -25,7 +25,6 @@ namespace VTree
             DirectoryScanner scanner = CreateScanner();
             MainForm mainForm = CreateMainForm(scanner);
 
-            CreateTreeForm(mainForm, scanner);
             CreateXMLWriter(mainForm, scanner);
             CreateTreeXMLWriter(mainForm, scanner);
 
@@ -54,22 +53,6 @@ namespace VTree
             };
 
             return mainForm;
-        }
-
-        static void CreateTreeForm(MainForm mainForm, DirectoryScanner scanner)
-        {
-            Console.WriteLine("Outside treeform-" + Thread.CurrentThread.ManagedThreadId);
-            mainForm.onStart += (Events.DirectoryScanEventArgs e) =>
-            {
-                TreeForm treeForm = new TreeForm(scanner);
-                mainForm.BeginInvoke(new Action(() =>
-                {
-                    // todo: move form to another thread
-                    Console.WriteLine("mainForm onstart-" + Thread.CurrentThread.ManagedThreadId);
-                    treeForm.InitializeTree();
-                    treeForm.ShowDialog(mainForm);
-                }));
-            };
         }
 
         static void CreateXMLWriter(MainForm mainForm, DirectoryScanner scanner)

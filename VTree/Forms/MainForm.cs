@@ -16,6 +16,8 @@ namespace VTree.Forms
 {
     public partial class MainForm : Form
     {
+        public char directoryDelimiter = '\\';
+
         private DirectoryScanner scanner { get; set; }
 
         private Thread scanThread;
@@ -35,6 +37,18 @@ namespace VTree.Forms
 
             // scan thread initialization
             this.scanThread = new Thread(this.startScanner);
+
+            this.scanner.onItemFound += (object sender, ItemFoundEventArgs e) =>
+            {
+                 if (e.Info is DirectoryInfo)
+                 {
+                     this.drawDirectory(sender, e);
+                 }
+                 else
+                 {
+                     this.drawFile(sender, e);
+                 }
+            };
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -157,6 +171,87 @@ namespace VTree.Forms
             {
                 this.scanThread.Abort();
             }
+        }
+
+        private TreeNode getNodeByPath(string path)
+        {
+            TreeNode node = this.directoryTree.Nodes[0];
+            if (!path.StartsWith(node.Text))
+            {
+                throw new Exception("Something got wrong");
+            }
+            if (path == node.Text)
+            {
+                return node;
+            }
+
+            string rightPart = path.Substring(node.Text.Length)
+                    .Trim(this.directoryDelimiter); // trim slashes
+            string[] parts = rightPart.Split(this.directoryDelimiter);
+
+            foreach (string dir in parts)
+            {
+                bool found = false;
+                foreach (TreeNode child in node.Nodes)
+                {
+                    if (child.Text == dir)
+                    {
+                        node = child;
+                        found = true;
+
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    throw new Exception("Directory not found");
+                }
+            }
+
+            return node;
+        }
+
+        public void InitializeTree()
+        {
+            this.directoryTree.Nodes.Clear();
+        }
+
+        private void drawFile(object sender, ItemFoundEventArgs e)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new Action(() => this.drawFile(sender, e)));
+
+                return;
+            }
+            FileInfo info = e.Info as FileInfo;
+            TreeNode fileNode = new TreeNode(info.Name, 0, 0);
+            this.getNodeByPath(info.DirectoryName)
+                .Nodes.Add(fileNode);
+        }
+
+        private void drawDirectory(object sender, ItemFoundEventArgs e)
+        {
+            if (this.InvokeRequired)
+            {
+                Console.WriteLine("drawdirectory requires invoke-" + Thread.CurrentThread.ManagedThreadId);
+                this.BeginInvoke(new Action(() => this.drawDirectory(sender, e)));
+
+                return;
+            }
+
+            Console.WriteLine("drawdirectory-" + Thread.CurrentThread.ManagedThreadId);
+            // root
+            if (this.directoryTree.Nodes.Count == 0)
+            {
+                this.directoryTree.Nodes.Add(new TreeNode(e.Info.FullName, 1, 1));
+
+                return;
+            }
+            DirectoryInfo info = e.Info as DirectoryInfo;
+            TreeNode directoryNode = new TreeNode(info.Name, 1, 1);
+            this.getNodeByPath(info.Parent.FullName)
+                .Nodes.Add(directoryNode);
         }
     }
 }
