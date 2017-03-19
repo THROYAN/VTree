@@ -170,8 +170,11 @@
             // directoryTree
             // 
             this.directoryTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.directoryTree.ImageIndex = 0;
+            this.directoryTree.ImageList = this.imageList1;
             this.directoryTree.Location = new System.Drawing.Point(0, 0);
             this.directoryTree.Name = "directoryTree";
+            this.directoryTree.SelectedImageIndex = 0;
             this.directoryTree.Size = new System.Drawing.Size(430, 288);
             this.directoryTree.TabIndex = 0;
             // 
