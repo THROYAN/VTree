@@ -29,7 +29,7 @@ namespace VTree.Models
         public void AddDirectory(DirectoryInfo directory)
         {
             DirectoryModel parent = null;
-            if (this.directoryList.ContainsKey(directory.Parent.FullName))
+            if (directory.Parent != null && this.directoryList.ContainsKey(directory.Parent.FullName))
             {
                 parent = this.directoryList[directory.Parent.FullName];
             }
@@ -66,6 +66,11 @@ namespace VTree.Models
         private DirectoryModel getDirectory(string path)
         {
             return this.directoryList[path];
+        }
+
+        public void Clear()
+        {
+            this.directoryList.Clear();
         }
     }
 }
