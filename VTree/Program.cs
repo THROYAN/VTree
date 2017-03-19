@@ -26,6 +26,7 @@ namespace VTree
             MainForm mainForm = CreateMainForm(scanner);
 
             CreateXMLWriter(mainForm, scanner);
+            // this one for deep tree in XML
             CreateTreeXMLWriter(mainForm, scanner);
 
             Application.Run(mainForm);
@@ -44,7 +45,7 @@ namespace VTree
 
             MainForm mainForm = new MainForm(scanner, directory, xmlPath);
             // save settings
-            mainForm.onStart += (Events.DirectoryScanEventArgs e) =>
+            mainForm.onScanStart += (Events.DirectoryScanEventArgs e) =>
             {
                 Properties.Settings.Default.directoryToScan = e.DirectoryPath;
                 Properties.Settings.Default.xmlPath = e.XMLFilePath;
@@ -57,10 +58,12 @@ namespace VTree
 
         static void CreateXMLWriter(MainForm mainForm, DirectoryScanner scanner)
         {
+            // to use it in onScanFinish bellow
             DirectoryXMLWriter directoryWriter = null;
             AsyncEventSubscriber<ItemFoundEventArgs> subscriber = null;
+
             // todo: move it to separate class
-            mainForm.onStart += (DirectoryScanEventArgs e) =>
+            mainForm.onScanStart += (DirectoryScanEventArgs e) =>
             {
                 // todo: check second start
                 try
@@ -100,11 +103,17 @@ namespace VTree
                     }
                 };
 
+                // start subscriber in new thread
                 subscriber.Thread.Start();
             };
 
-            mainForm.onFinish += (DirectoryScanEventArgs e) =>
+            mainForm.onScanFinish += (DirectoryScanEventArgs e) =>
             {
+                // last one failed?
+                if (directoryWriter == null)
+                {
+                    return;
+                }
                 // to be sure close file after writing
                 // are we sure?
                 lock (directoryWriter)
@@ -127,7 +136,7 @@ namespace VTree
             DirectoryTree tree = new DirectoryTree();
             AsyncEventSubscriber<ItemFoundEventArgs> subscriber = null;
             // todo: move it to separate class
-            mainForm.onStart += (DirectoryScanEventArgs e) =>
+            mainForm.onScanStart += (DirectoryScanEventArgs e) =>
             {
                 tree.Clear();
                 // todo: check second start
@@ -151,14 +160,17 @@ namespace VTree
                 subscriber.Thread.Start();
             };
 
-            mainForm.onFinish += (DirectoryScanEventArgs e) =>
+            mainForm.onScanFinish += (DirectoryScanEventArgs e) =>
             {
                 lock (tree)
                 {
+                    // it hope it's not null
                     subscriber.Thread.Abort();
+
                     // write XML in brand new thread
                     new Thread(() =>
                     {
+                        // big one
                         try
                         {
                             XmlWriter xmlWriter = XmlWriter.Create(e.XMLFilePath + "-deep.xml");
@@ -172,6 +184,7 @@ namespace VTree
                                 // am I lazy?
                                 // I cannot understand the domain
                                 // I cannot really come up with some place I can move this shit to
+                                // should I create one more "DirectoryXMLWriter" or maybe replace that one with this?
                                 xmlWriter.WriteElementString("size", directory.Size + " bytes");
                                 xmlWriter.WriteStartElement("directories");
                                 directory.Directories.ForEach(writeDirFunc);
@@ -184,6 +197,7 @@ namespace VTree
                                     directoryWriter.EndFile();
                                 });
                                 xmlWriter.WriteEndElement();
+                                directoryWriter.EndDirectory();
                             };
 
                             directoryWriter.Start();

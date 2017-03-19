@@ -24,8 +24,8 @@ namespace VTree.Forms
 
         public delegate void DirectoryScanEventHander(DirectoryScanEventArgs e);
 
-        public event DirectoryScanEventHander onStart;
-        public event DirectoryScanEventHander onFinish;
+        public event DirectoryScanEventHander onScanStart;
+        public event DirectoryScanEventHander onScanFinish;
 
         public MainForm(DirectoryScanner scanner, string directory, string xmlPath)
         {
@@ -134,7 +134,7 @@ namespace VTree.Forms
                 filePathTextBox.Text
             );
 
-            this.onStart?.Invoke(e);
+            this.onScanStart?.Invoke(e);
 
             try
             {
@@ -143,7 +143,7 @@ namespace VTree.Forms
             }
             finally
             {
-                this.onFinish?.Invoke(e);
+                this.onScanFinish?.Invoke(e);
 
                 // enable start button again
                 this.BeginInvoke(new Action(() =>
