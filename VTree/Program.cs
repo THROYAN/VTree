@@ -80,8 +80,19 @@ namespace VTree
             mainForm.onStart += (DirectoryScanEventArgs e) =>
             {
                 // todo: check second start
-                XmlWriter xmlWriter = XmlWriter.Create(e.XMLFilePath);
-                directoryWriter = new DirectoryXMLWriter(xmlWriter);
+                try
+                {
+                    // todo: move to the lock
+                    // so we could be sure that previous file is closed
+                    XmlWriter xmlWriter = XmlWriter.Create(e.XMLFilePath);
+                    directoryWriter = new DirectoryXMLWriter(xmlWriter);
+                }
+                catch
+                {
+                    MessageBox.Show("File is not writable");
+
+                    return;
+                }
                 // write first lines
                 directoryWriter.Start();
 
@@ -115,8 +126,15 @@ namespace VTree
                 // are we sure?
                 lock (directoryWriter)
                 {
-                    subscriber.Thread.Abort();
-                    directoryWriter.End();
+                    try
+                    {
+                        subscriber.Thread.Abort();
+                        directoryWriter.End();
+                    }
+                    catch
+                    {
+                        // can be failed on second run
+                    }
                 }
             };
         }
@@ -128,9 +146,8 @@ namespace VTree
             // todo: move it to separate class
             mainForm.onStart += (DirectoryScanEventArgs e) =>
             {
+                tree.Clear();
                 // todo: check second start
-
-
                 subscriber = new AsyncEventSubscriber<ItemFoundEventArgs>();
                 scanner.onItemFound += subscriber.Handler;
                 subscriber.OnEvent += (object sender, ItemFoundEventArgs ev) =>
@@ -159,34 +176,43 @@ namespace VTree
                     // write XML in brand new thread
                     new Thread(() =>
                     {
-                        XmlWriter xmlWriter = XmlWriter.Create(e.XMLFilePath + "-deep.xml");
-                        DirectoryXMLWriter directoryWriter = new DirectoryXMLWriter(xmlWriter);
-
-                        Action<DirectoryModel> writeDirFunc = null;
-                        writeDirFunc = (DirectoryModel directory) =>
+                        try
                         {
-                            directoryWriter.StartDirectory();
-                            directoryWriter.WriteDirectory(directory.Info);
-                            // am I lazy?
-                            // I cannot understand the domain
-                            // I cannot really come up with some place I can move this shit to
-                            xmlWriter.WriteElementString("size", directory.Size + " bytes");
-                            xmlWriter.WriteStartElement("directories");
-                            directory.Directories.ForEach(writeDirFunc);
-                            xmlWriter.WriteEndElement();
-                            xmlWriter.WriteStartElement("files");
-                            directory.Files.ForEach((FileInfo file) =>
+                            XmlWriter xmlWriter = XmlWriter.Create(e.XMLFilePath + "-deep.xml");
+                            DirectoryXMLWriter directoryWriter = new DirectoryXMLWriter(xmlWriter);
+                            
+                            Action<DirectoryModel> writeDirFunc = null;
+                            writeDirFunc = (DirectoryModel directory) =>
                             {
-                                directoryWriter.StartFile();
-                                directoryWriter.WriteFile(file);
-                                directoryWriter.EndFile();
-                            });
-                            xmlWriter.WriteEndElement();
-                        };
+                                directoryWriter.StartDirectory();
+                                directoryWriter.WriteDirectory(directory.Info);
+                                // am I lazy?
+                                // I cannot understand the domain
+                                // I cannot really come up with some place I can move this shit to
+                                xmlWriter.WriteElementString("size", directory.Size + " bytes");
+                                xmlWriter.WriteStartElement("directories");
+                                directory.Directories.ForEach(writeDirFunc);
+                                xmlWriter.WriteEndElement();
+                                xmlWriter.WriteStartElement("files");
+                                directory.Files.ForEach((FileInfo file) =>
+                                {
+                                    directoryWriter.StartFile();
+                                    directoryWriter.WriteFile(file);
+                                    directoryWriter.EndFile();
+                                });
+                                xmlWriter.WriteEndElement();
+                            };
 
-                        directoryWriter.Start();
-                        writeDirFunc(tree.GetRoot());
-                        directoryWriter.End();
+                            directoryWriter.Start();
+                            writeDirFunc(tree.GetRoot());
+                            directoryWriter.End();
+                        }
+                        catch
+                        {
+                            MessageBox.Show("File is not writable");
+
+                            return;
+                        }
                     }).Start();
                 }
             };
